@@ -33,35 +33,16 @@ def create_settings_page_ui(parent, settings_callback, current_settings, setting
     create_setting_widget(
         scroll_frame, 
         "Points to render in % (Huge impact on render speed!):", 
-        "points_to_render",
-        10.0,
+        "points_to_render",     
+        current_settings["points_to_render"],
         settings_widget_ref,
         min_value=10.0,
         max_value=100.0,
-        step=1.0
+        step=1.0,
+        
     )
     
-    create_setting_widget(
-        scroll_frame,
-        "Template 2",
-        "Do wypelnienia 2",
-        0.97,
-        settings_widget_ref,
-        min_value=0.0,
-        max_value=1.0,
-        step=0.01
-    )
     
-    create_setting_widget(
-        scroll_frame,
-        "Template 3",
-        "Do wypelnienia 3",
-        0.2,
-        settings_widget_ref,
-        min_value=0.01,
-        max_value=10.0,
-        step=0.01
-    )
     
     # Output format setting
     output_frame = ctk.CTkFrame(scroll_frame)
@@ -82,21 +63,7 @@ def create_settings_page_ui(parent, settings_callback, current_settings, setting
     output_format.pack(anchor="w", padx=10, pady=(0, 10))
     
     # Checkbox settings
-    create_checkbox_setting(
-        scroll_frame,
-        "Enable Verbose Logging",
-        "verbose_logging",
-        False,
-        settings_ref
-    )
     
-    create_checkbox_setting(
-        scroll_frame,
-        "Save Intermediate Results",
-        "save_intermediate",
-        True,
-        settings_ref
-    )
     
     # Buttons frame
     button_frame = ctk.CTkFrame(main_frame)
@@ -107,23 +74,22 @@ def create_settings_page_ui(parent, settings_callback, current_settings, setting
 
 def create_setting_widget(parent, label_text, key, default_value, settings_widget_ref,
                          min_value=0, max_value=100, step=1):
-    """Create a setting widget with label and slider"""
     frame = ctk.CTkFrame(parent)
     frame.pack(fill="x", pady=10, padx=10)
-    
-    # Label
+
+    # ustaw wartość startową
+    settings_widget_ref[key] = default_value
+
     label = ctk.CTkLabel(
         frame,
         text=label_text,
         font=ctk.CTkFont(size=14, weight="bold")
     )
     label.pack(anchor="w", padx=10, pady=(10, 5))
-    
-    # Value display and slider frame
+
     value_frame = ctk.CTkFrame(frame)
     value_frame.pack(fill="x", padx=10, pady=(0, 10))
-    
-    # Value label
+
     value_label = ctk.CTkLabel(
         value_frame,
         text=f"{default_value}",
@@ -131,45 +97,21 @@ def create_setting_widget(parent, label_text, key, default_value, settings_widge
         width=100
     )
     value_label.pack(side="right", padx=10)
-    
-    # Slider
+
+    def onChange(value):
+        value_label.configure(text=f"{value:.2f}" if step < 1 else f"{int(value)}")
+        settings_widget_ref[key] = float(value)
+
     slider = ctk.CTkSlider(
         value_frame,
         from_=min_value,
         to=max_value,
         number_of_steps=int((max_value - min_value) / step),
-        command=lambda v: value_label.configure(text=f"{v:.2f}" if step < 1 else f"{int(v)}")
+        command=onChange
     )
+
     slider.set(default_value)
     slider.pack(side="left", fill="x", expand=True, padx=10)
-    
-    # Store references
-    settings_widget_ref[key] = {
-        "value": default_value,
-        "slider": slider,
-        "label": value_label
-    }
-
-
-def create_checkbox_setting(parent, label_text, key, default_value, settings_ref):
-    """Create a checkbox setting"""
-    frame = ctk.CTkFrame(parent)
-    frame.pack(fill="x", pady=10, padx=10)
-    
-    checkbox = ctk.CTkCheckBox(
-        frame,
-        text=label_text,
-        font=ctk.CTkFont(size=14)
-    )
-    checkbox.pack(anchor="w", padx=10, pady=10)
-    
-    if default_value:
-        checkbox.select()
-    
-    settings_ref[key] = {
-        "value": default_value,
-        "checkbox": checkbox
-    }
 
 
 def create_settings_buttons(button_frame, save_command, reset_command, cancel_command):

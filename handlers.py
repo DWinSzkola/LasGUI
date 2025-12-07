@@ -122,7 +122,7 @@ def handle_save_settings(settings_page_instance):
         if key == "output_format":
             settings_page_instance.settings[key] = settings_page_instance.output_format.get()
         elif key == "points_to_render":
-            settings_page_instance.settings[key] = settings_page_instance.settingsWidget["points_to_render"]["value"]
+            settings_page_instance.settings[key] = settings_page_instance.settingsWidget["points_to_render"]
     
     print(settings_page_instance.settings)
     # Call callback with settings
@@ -154,6 +154,7 @@ def handle_reset_settings(settings_page_instance):
         "save_intermediate": True
     }
     print("Wait for finish rest")
+    
     # for key, default_value in defaults.items():
     #     if key in settings_page_instance.settings:
     #         widget_data = settings_page_instance.settings[key]

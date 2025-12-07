@@ -37,8 +37,10 @@ class SettingsPage(ctk.CTkToplevel):
             button_frame,
             self.save_settings,
             self.reset_settings,
-            self.destroy
+            self.destroy   # ← cancel
         )
+
+        
         
         # Load default settings
         self.reset_settings()
