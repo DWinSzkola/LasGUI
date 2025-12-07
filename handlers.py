@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import tkinter.filedialog as filedialog
 import os
+import Logic
 from typing import Dict, Any
 
 
@@ -51,9 +52,11 @@ def handle_browse_output_file(app_instance):
 
 
 def handle_process_file(app_instance):
-    """Handle file processing"""
+
     if not app_instance.input_file_path:
         app_instance.update_status("❌ Please select an input file first!", error=True)
+    else
+
         return
     
     if not app_instance.output_file_path:
