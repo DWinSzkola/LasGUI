@@ -26,6 +26,13 @@ if exist __pycache__ rmdir /s /q __pycache__
 REM Only remove auto-generated spec files, not build-exe.spec
 for %%f in (*.spec) do if not "%%f"=="build-exe.spec" del /q "%%f"
 
+REM Create spec file if missing
+if not exist "build-exe.spec" (
+    echo 📝 Creating build-exe.spec automatically...
+    pyinstaller --name LasGUI --onefile --windowed main.py
+    echo 🔧 Adjust build-exe.spec now if needed, then run build again.
+)
+
 REM Build executable
 echo 🏗️  Building executable with PyInstaller...
 pyinstaller build-exe.spec
@@ -43,4 +50,3 @@ if exist "dist\LasGUI.exe" (
 )
 
 pause
-
