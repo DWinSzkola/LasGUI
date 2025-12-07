@@ -114,7 +114,7 @@ def create_setting_widget(parent, label_text, key, default_value, settings_widge
     slider.pack(side="left", fill="x", expand=True, padx=10)
 
 
-def create_settings_buttons(button_frame, save_command, reset_command, cancel_command):
+def create_settings_buttons(button_frame, save_command, cancel_command):
     """Create settings page buttons"""
     # Save button
     save_btn = ctk.CTkButton(
@@ -127,18 +127,18 @@ def create_settings_buttons(button_frame, save_command, reset_command, cancel_co
     )
     save_btn.pack(side="left", padx=10)
     
-    # Reset button
-    reset_btn = ctk.CTkButton(
-        button_frame,
-        text="🔄 Reset to Default",
-        command=reset_command,
-        width=150,
-        height=40,
-        font=ctk.CTkFont(size=14),
-        fg_color="gray",
-        hover_color="darkgray"
-    )
-    reset_btn.pack(side="left", padx=10)
+    # # Reset button
+    # reset_btn = ctk.CTkButton(
+    #     button_frame,
+    #     text="🔄 Reset to Default",
+    #     command=reset_command,
+    #     width=150,
+    #     height=40,
+    #     font=ctk.CTkFont(size=14),
+    #     fg_color="gray",
+    #     hover_color="darkgray"
+    # )
+    # reset_btn.pack(side="left", padx=10)
     
     # Cancel button
     cancel_btn = ctk.CTkButton(

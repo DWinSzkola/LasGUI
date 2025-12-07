@@ -142,30 +142,10 @@ def handle_save_settings(settings_page_instance):
 
 
 def handle_reset_settings(settings_page_instance):
-    """Handle resetting settings to default values"""
-    defaults = {
-        "PROCENT_INTENSYWNOSCI_FILTRACJI": 2.0,
-        "TOLERANCJA_PIONOWOSCI": 0.97,
-        "DBSCAN_EPS": 0.2,
-        "MIN_PUNKTY_GRUPY": 300,
-        "TOLERANCJA_ODLEGLOSCI_RANSAC": 0.1,
-        "MIN_INLIERS_PROCENT": 0.5,
-        "verbose_logging": False,
-        "save_intermediate": True
-    }
-    print("Wait for finish rest")
+    settings_page_instance.settings_callback({
+            "output_format": ".las",
+            "points_to_render": 10.0
+        })
     
-    # for key, default_value in defaults.items():
-    #     if key in settings_page_instance.settings:
-    #         widget_data = settings_page_instance.settings[key]
-    #         if "slider" in widget_data:
-    #             widget_data["slider"].set(default_value)
-    #             widget_data["label"].configure(
-    #                 text=f"{default_value:.2f}" if isinstance(default_value, float) else f"{int(default_value)}"
-    #             )
-    #         elif "checkbox" in widget_data:
-    #             if default_value:
-    #                 widget_data["checkbox"].select()
-    #             else:
-    #                 widget_data["checkbox"].deselect()
-
+    
+   
