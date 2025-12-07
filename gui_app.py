@@ -247,8 +247,7 @@ class SettingsPage(ctk.CTkToplevel):
                 self.settings[key] = self.output_format.get()
             elif key == "points_to_render":
                 self.settings[key] = self.settingsWidget["points_to_render"]["value"]
-            elif "checkbox" in widget_data:
-                self.settings[key] = widget_data["checkbox"].get()
+            
         print(self.settings)
         # Call callback with settings
         if self.settings_callback:
@@ -277,20 +276,20 @@ class SettingsPage(ctk.CTkToplevel):
             "verbose_logging": False,
             "save_intermediate": True
         }
-        
-        for key, default_value in defaults.items():
-            if key in self.settings:
-                widget_data = self.settings[key]
-                if "slider" in widget_data:
-                    widget_data["slider"].set(default_value)
-                    widget_data["label"].configure(
-                        text=f"{default_value:.2f}" if isinstance(default_value, float) else f"{int(default_value)}"
-                    )
-                elif "checkbox" in widget_data:
-                    if default_value:
-                        widget_data["checkbox"].select()
-                    else:
-                        widget_data["checkbox"].deselect()
+        print("Wait for finish rest")
+        # for key, default_value in defaults.items():
+        #     if key in self.settings:
+        #         widget_data = self.settings[key]
+        #         if "slider" in widget_data:
+        #             widget_data["slider"].set(default_value)
+        #             widget_data["label"].configure(
+        #                 text=f"{default_value:.2f}" if isinstance(default_value, float) else f"{int(default_value)}"
+        #             )
+        #         elif "checkbox" in widget_data:
+        #             if default_value:
+        #                 widget_data["checkbox"].select()
+        #             else:
+        #                 widget_data["checkbox"].deselect()
 
 
 class ModernGUIApp(ctk.CTk):
