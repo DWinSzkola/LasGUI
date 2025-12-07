@@ -13,7 +13,9 @@ from handlers import (
     handle_browse_output_file,
     handle_process_file,
     handle_clear_files,
-    handle_open_settings
+    handle_open_settings,
+    update_api_status_indicator,
+    start_api_health_monitor
 )
 from settings_view import SettingsPage
 
@@ -68,7 +70,7 @@ class ModernGUIApp(ctk.CTk):
         main_container.pack(fill="both", expand=True, padx=20, pady=20)
         
         # Create header using views module
-        create_main_app_header(main_container)
+        header_frame, self.api_status_label = create_main_app_header(main_container)
         
         # Create file selection section using views module
         self.input_file_label, self.output_file_label = create_file_selection_section(
@@ -87,6 +89,16 @@ class ModernGUIApp(ctk.CTk):
         
         # Create status section using views module
         self.status_label, self.progress_bar = create_status_section(main_container)
+        
+        # Check API health on startup
+        self.after(100, lambda: self.check_api_on_startup())
+    
+    def check_api_on_startup(self):
+        """Check API health on startup and start monitoring"""
+        # Initial check
+        update_api_status_indicator(self)
+        # Start periodic monitoring (every 5 seconds)
+        start_api_health_monitor(self, interval=5)
     
     def on_settings_saved(self, settings):
         """Callback when settings are saved"""

@@ -4,6 +4,7 @@ import os
 import requests
 from typing import Dict, Any
 import threading
+import time
 
 
 def handle_browse_input_file(app_instance):
@@ -64,6 +65,13 @@ def handle_process_file(app_instance):
     
     if not os.path.exists(app_instance.input_file_path):
         app_instance.update_status("❌ Input file does not exist!", error=True)
+        return
+    
+    # Check API health before processing
+    is_connected, message = check_api_health(app_instance.api_url)
+    if not is_connected:
+        app_instance.update_status(f"❌ {message}. Please ensure API is running.", error=True)
+        update_api_status_indicator(app_instance)
         return
     
     # Show progress bar
@@ -196,6 +204,59 @@ def handle_reset_settings(settings_page_instance):
             "output_format": ".las",
             "points_to_render": 10.0
         })
+
+
+def check_api_health(api_url, timeout=2):
+    """
+    Check if API is available and healthy.
+    Returns (is_connected, message)
+    """
+    try:
+        response = requests.get(f'{api_url}/health', timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('status') == 'healthy':
+                return True, "API connected"
+            else:
+                return False, "API unhealthy"
+        else:
+            return False, f"API error: {response.status_code}"
+    except requests.exceptions.ConnectionError:
+        return False, "API not reachable"
+    except requests.exceptions.Timeout:
+        return False, "API timeout"
+    except Exception as e:
+        return False, f"Connection error: {str(e)}"
+
+
+def update_api_status_indicator(app_instance):
+    """Update the API connection status indicator"""
+    is_connected, message = check_api_health(app_instance.api_url)
+    
+    if hasattr(app_instance, 'api_status_label'):
+        if is_connected:
+            app_instance.api_status_label.configure(
+                text="🟢 API Connected",
+                text_color="green"
+            )
+        else:
+            app_instance.api_status_label.configure(
+                text=f"🔴 {message}",
+                text_color="red"
+            )
+    
+    return is_connected
+
+
+def start_api_health_monitor(app_instance, interval=5):
+    """Start periodic API health monitoring"""
+    def monitor():
+        while True:
+            update_api_status_indicator(app_instance)
+            time.sleep(interval)
+    
+    thread = threading.Thread(target=monitor, daemon=True)
+    thread.start()
     
     
    

@@ -166,15 +166,27 @@ def create_main_app_header(parent):
     )
     title_label.pack(pady=10)
     
+    subtitle_frame = ctk.CTkFrame(header_frame, fg_color="transparent")
+    subtitle_frame.pack()
+    
     subtitle_label = ctk.CTkLabel(
-        header_frame,
+        subtitle_frame,
         text="Process your files with ease",
         font=ctk.CTkFont(size=16),
         text_color="gray"
     )
-    subtitle_label.pack()
+    subtitle_label.pack(side="left", padx=(0, 10))
     
-    return header_frame
+    # API status indicator (will be updated by handlers)
+    api_status_label = ctk.CTkLabel(
+        subtitle_frame,
+        text="🟡 Checking API...",
+        font=ctk.CTkFont(size=12),
+        text_color="orange"
+    )
+    api_status_label.pack(side="left")
+    
+    return header_frame, api_status_label
 
 
 def create_file_selection_section(parent, browse_input_command, browse_output_command):
