@@ -1,0 +1,42 @@
+# Dockerfile for GUI Desktop Application
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+# X11 and GUI libraries for customtkinter
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    python3-tk \
+    x11-apps \
+    xauth \
+    xvfb \
+    libx11-6 \
+    libxext6 \
+    libxrender1 \
+    libxtst6 \
+    libxi6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements file
+COPY requirements-gui.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements-gui.txt
+
+# Copy application code
+COPY Logic.py .
+COPY gui_app.py .
+COPY handlers.py .
+COPY views.py .
+COPY settings_view.py .
+
+# Set display environment variable (for X11 forwarding)
+ENV DISPLAY=:0
+ENV PYTHONUNBUFFERED=1
+
+# Run the GUI application
+CMD ["python", "gui_app.py"]
+

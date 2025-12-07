@@ -1,7 +1,5 @@
-customtkinter
-typing
-json
 laspy
 fastapi
 uvicorn[standard]
 python-multipart
+

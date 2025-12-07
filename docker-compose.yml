@@ -1,0 +1,63 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: las-processing-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount uploads and outputs directories for persistence
+      - ./uploads:/app/uploads
+      - ./outputs:/app/outputs
+      # Optional: mount a directory with sample files
+      # - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - las-network
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  gui:
+    build:
+      context: .
+      dockerfile: Dockerfile.gui
+    container_name: las-processing-gui
+    depends_on:
+      - api
+    environment:
+      # For macOS: use IP from host, for Linux: use :0
+      - DISPLAY=${DISPLAY}
+      - PYTHONUNBUFFERED=1
+      - API_URL=http://api:8000
+    volumes:
+      # Mount X11 socket for GUI display (Linux)
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      # Mount current directory for file access
+      - .:/app/data:ro
+      # Mount a directory for input/output files (create if doesn't exist)
+      - ./data:/app/user_data:rw
+    # Connect to API service via Docker network
+    networks:
+      - las-network
+    # Required for GUI applications
+    stdin_open: true
+    tty: true
+    # Don't restart GUI app automatically (user-controlled)
+    restart: "no"
+
+networks:
+  las-network:
+    driver: bridge

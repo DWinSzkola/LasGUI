@@ -1,0 +1,4 @@
+customtkinter
+laspy
+requests
+

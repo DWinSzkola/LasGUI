@@ -57,9 +57,31 @@ venv\Scripts\activate       # Windows
 pip install -r requirements.txt
 ```
 ### ▶️ Run the Application
+
+**Option 1: Run directly (requires Python and dependencies)**
 ```bash
-python guiapp.py
+python gui_app.py
 ```
+
+**Option 2: Build and run as executable (recommended for distribution)**
+```bash
+# Build executable
+./build.sh  # macOS/Linux
+# or
+build.bat   # Windows
+
+# Run the executable
+./dist/LasGUI  # macOS/Linux
+# or
+dist\LasGUI.exe  # Windows
+```
+
+**Option 3: Run in Docker (see DOCKER-GUI.md)**
+```bash
+docker-compose up gui
+```
+
+> **Note**: The GUI app communicates with the API server. Make sure the API is running at `http://localhost:8000` or set the `API_URL` environment variable.
 ### 🧭 Project Structure
 ```bash
 📦 modern-file-processor

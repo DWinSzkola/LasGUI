@@ -1,8 +1,9 @@
 import customtkinter as ctk
 import tkinter.filedialog as filedialog
 import os
-import Logic
+import requests
 from typing import Dict, Any
+import threading
 
 
 def handle_browse_input_file(app_instance):
@@ -55,8 +56,6 @@ def handle_process_file(app_instance):
 
     if not app_instance.input_file_path:
         app_instance.update_status("❌ Please select an input file first!", error=True)
-    else
-
         return
     
     if not app_instance.output_file_path:
@@ -77,29 +76,77 @@ def handle_process_file(app_instance):
     app_instance.after(100, lambda: simulate_processing(app_instance))
 
 
-def simulate_processing(app_instance):
-    """Simulate file processing with progress updates"""
-    # This is a simulation - replace with your actual processing logic
-    steps = 10
-    for i in range(steps + 1):
-        progress = i / steps
-        app_instance.progress_bar.set(progress)
-        app_instance.update()
-        app_instance.after(200)  # Simulate work
-    
-    # Here you would call your actual processing function
-    # For example: process_las_file(app_instance.input_file_path, app_instance.output_file_path, app_instance.current_settings)
+def process_file_via_api(app_instance):
+    """Process file via API with progress updates"""
+    api_url = getattr(app_instance, 'api_url', 'http://localhost:8000')
     
     try:
-        # Example: Copy file as a placeholder (replace with actual processing)
-        import shutil
-        shutil.copy2(app_instance.input_file_path, app_instance.output_file_path)
+        # Update progress bar
+        app_instance.progress_bar.set(0.2)
+        app_instance.update()
         
+        # Read the input file
+        with open(app_instance.input_file_path, 'rb') as f:
+            files = {'file': (os.path.basename(app_instance.input_file_path), f, 'application/octet-stream')}
+            
+            # Prepare form data
+            data = {
+                'output_format': app_instance.current_settings.get('output_format', '.las'),
+                'points_to_render': app_instance.current_settings.get('points_to_render', 10.0)
+            }
+            
+            app_instance.progress_bar.set(0.5)
+            app_instance.update()
+            
+            # Make API request
+            response = requests.post(
+                f'{api_url}/api/process-file',
+                files=files,
+                data=data,
+                timeout=300  # 5 minute timeout for large files
+            )
+            
+            app_instance.progress_bar.set(0.9)
+            app_instance.update()
+            
+            if response.status_code == 200:
+                # Save the processed file
+                output_dir = os.path.dirname(app_instance.output_file_path)
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir, exist_ok=True)
+                
+                with open(app_instance.output_file_path, 'wb') as out_file:
+                    out_file.write(response.content)
+                
+                app_instance.progress_bar.set(1.0)
+                app_instance.update()
+                app_instance.progress_bar.pack_forget()
+                app_instance.update_status(f"✅ File processed successfully! Saved to: {os.path.basename(app_instance.output_file_path)}")
+            else:
+                error_msg = response.json().get('detail', f'API error: {response.status_code}')
+                app_instance.progress_bar.pack_forget()
+                app_instance.update_status(f"❌ {error_msg}", error=True)
+                
+    except requests.exceptions.ConnectionError:
         app_instance.progress_bar.pack_forget()
-        app_instance.update_status(f"✅ File processed successfully! Saved to: {os.path.basename(app_instance.output_file_path)}")
+        app_instance.update_status("❌ Cannot connect to API server. Is it running?", error=True)
+    except requests.exceptions.Timeout:
+        app_instance.progress_bar.pack_forget()
+        app_instance.update_status("❌ Request timed out. File may be too large.", error=True)
+    except FileNotFoundError:
+        app_instance.progress_bar.pack_forget()
+        app_instance.update_status("❌ Input file not found!", error=True)
     except Exception as e:
         app_instance.progress_bar.pack_forget()
         app_instance.update_status(f"❌ Error processing file: {str(e)}", error=True)
+
+
+def simulate_processing(app_instance):
+    """Process file with progress updates (runs in background thread)"""
+    # Run API call in a separate thread to avoid blocking UI
+    thread = threading.Thread(target=process_file_via_api, args=(app_instance,))
+    thread.daemon = True
+    thread.start()
 
 
 def handle_clear_files(app_instance):

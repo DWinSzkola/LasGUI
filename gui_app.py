@@ -41,6 +41,9 @@ class ModernGUIApp(ctk.CTk):
             "points_to_render": 10.0
         }
         
+        # API URL - defaults to localhost, can be overridden via environment variable
+        self.api_url = os.environ.get('API_URL', 'http://localhost:8000')
+        
         # Input and output file paths
         self.input_file_path = None
         self.output_file_path = None
